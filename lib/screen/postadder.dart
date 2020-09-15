@@ -19,6 +19,7 @@ class _PostAdder extends State<PostAdder>{
   TextEditingController subjectController = TextEditingController(text: "제목");
   TextEditingController contentsController = TextEditingController(text: "내용");
 
+  // 수정 예정
   addPost() {
     return posting.collection('post').document('${subjectController.text}').setData({
       'name': nameController.text,
