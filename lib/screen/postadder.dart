@@ -1,23 +1,43 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/cupertino.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/painting.dart';
 import 'package:flutter_post/model/post.dart';
 import 'package:flutter_post/screen/postlist.dart';
 
-class PostAdder extends StatelessWidget{
+class PostAdder extends StatefulWidget {
+  _PostAdder createState() => _PostAdder();
+}
+
+class _PostAdder extends State<PostAdder>{
+
+  Firestore posting = Firestore.instance;
+  TextEditingController nameController = TextEditingController(text: "이름");
+  TextEditingController phoneNumberController = TextEditingController(text: "전화번호");
+  TextEditingController emailController = TextEditingController(text: "email");
+  TextEditingController addressController = TextEditingController(text: "주소");
+  TextEditingController subjectController = TextEditingController(text: "제목");
+  TextEditingController contentsController = TextEditingController(text: "내용");
+
+  addPost() {
+    return posting.collection('post').document('${subjectController.text}').setData({
+      'name': nameController.text,
+      'phoneNumber': phoneNumberController.text,
+      'email': emailController.text,
+      'address': addressController.text,
+      'subject': subjectController.text,
+      'contents': contentsController.text
+    }).then((value) => print("Post Added"));
+  }
+
   @override
   Widget build(BuildContext context) {
     return showPostAdder(context);
   }
-
   Widget showPostAdder(BuildContext context) {
-    TextEditingController nameController = TextEditingController();
-    TextEditingController phoneNumberController = TextEditingController();
-    TextEditingController emailController = TextEditingController();
-    TextEditingController addressController = TextEditingController();
-    TextEditingController subjectController = TextEditingController();
-    TextEditingController contentsController = TextEditingController();
+
+    Post post;
+
     return Scaffold(
       resizeToAvoidBottomInset: false,
       key: GlobalKey<ScaffoldState>(),
@@ -40,7 +60,7 @@ class PostAdder extends StatelessWidget{
               onPressed: (){
                 Navigator.pop(context);
                 Navigator.push(context, MaterialPageRoute<void>(builder: (BuildContext context){
-                  Post.init(nameController.text.toString(), phoneNumberController.text.toString(), emailController.text.toString(), addressController.text.toString(), subjectController.text.toString(), contentsController.text.toString());
+                  addPost();
                   return PostList();
                 }));
               })
