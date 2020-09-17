@@ -32,9 +32,10 @@ class _PostList extends State<PostList>{
                 InfoDialog().showAlertDialog(context);
               }),
         ],
-      ),
-
+      ),body: makeList(),
     );
   }
+
+  makeList() {}
 
 }

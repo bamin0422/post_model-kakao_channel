@@ -5,7 +5,8 @@ class Post{
   String address;
   String subject;
   String contents;
+  String photoUrl;
+  String fileUrl;
   
-  Post.init(String name,String phoneNumber,String email,String address,String subject,String contents);
-
+  Post(this.name,this.phoneNumber,this.email,this.address,this.subject,this.contents,this.photoUrl,this.fileUrl);
 }
