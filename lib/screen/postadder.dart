@@ -3,7 +3,10 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/painting.dart';
 import 'package:flutter_post/model/post.dart';
+import 'package:flutter_post/model/upload_storage.dart';
 import 'package:flutter_post/screen/postlist.dart';
+import 'package:flutter_post/widget/floating_action_button_post.dart';
+import 'package:image_picker/image_picker.dart';
 
 class PostAdder extends StatefulWidget {
   _PostAdder createState() => _PostAdder();
@@ -11,23 +14,28 @@ class PostAdder extends StatefulWidget {
 
 class _PostAdder extends State<PostAdder>{
 
+
+  UploadStorage upload = UploadStorage();
   Firestore posting = Firestore.instance;
-  TextEditingController nameController = TextEditingController(text: "이름");
-  TextEditingController phoneNumberController = TextEditingController(text: "전화번호");
-  TextEditingController emailController = TextEditingController(text: "email");
-  TextEditingController addressController = TextEditingController(text: "주소");
-  TextEditingController subjectController = TextEditingController(text: "제목");
-  TextEditingController contentsController = TextEditingController(text: "내용");
+  TextEditingController nameController = TextEditingController();
+  TextEditingController phoneNumberController = TextEditingController();
+  TextEditingController emailController = TextEditingController();
+  TextEditingController addressController = TextEditingController();
+  TextEditingController subjectController = TextEditingController();
+  TextEditingController contentsController = TextEditingController();
 
   // 수정 예정
-  addPost() {
+  addPost(String imgUrl, String fileUrl) {
     return posting.collection('post').document('${subjectController.text}').setData({
       'name': nameController.text,
       'phoneNumber': phoneNumberController.text,
       'email': emailController.text,
       'address': addressController.text,
       'subject': subjectController.text,
-      'contents': contentsController.text
+      'contents': contentsController.text,
+      'time': '${DateTime.now().year}년 ${DateTime.now().month}월 ${DateTime.now().day}일',
+      'photoUrl': imgUrl,
+      'fileUrl': fileUrl,
     }).then((value) => print("Post Added"));
   }
 
@@ -36,8 +44,6 @@ class _PostAdder extends State<PostAdder>{
     return showPostAdder(context);
   }
   Widget showPostAdder(BuildContext context) {
-
-    Post post;
 
     return Scaffold(
       resizeToAvoidBottomInset: false,
@@ -61,7 +67,8 @@ class _PostAdder extends State<PostAdder>{
               onPressed: (){
                 Navigator.pop(context);
                 Navigator.push(context, MaterialPageRoute<void>(builder: (BuildContext context){
-                  addPost();
+
+                  addPost(upload.getDownloadUrl(), "");
                   return PostList();
                 }));
               })
@@ -71,7 +78,27 @@ class _PostAdder extends State<PostAdder>{
         child: SingleChildScrollView(
           child: Column(
           children:   <Widget>[
-            Padding(padding: EdgeInsets.fromLTRB(10, 10, 10, 5),
+            Container(
+                color: Colors.blueGrey,
+                child:Row(
+              mainAxisAlignment: MainAxisAlignment.spaceAround,
+              children: <Widget>[
+                IconButton(icon: Icon(Icons.photo_camera),
+                    color: Colors.white,
+                    onPressed: (){
+                        upload.uploadImage(ImageSource.camera);
+                    }),
+                IconButton(icon: Icon(Icons.photo),
+                    color: Colors.white,
+                    onPressed: (){
+                      upload.uploadImage(ImageSource.gallery);
+                    }),
+                IconButton(icon: Icon(Icons.attach_file),
+                    color: Colors.white,
+                    onPressed: (){}),
+              ],)
+            ),
+            Padding(padding: EdgeInsets.fromLTRB(5, 10, 10, 5),
             child: TextField(
                 controller: nameController,
                 decoration: InputDecoration(
@@ -135,10 +162,12 @@ class _PostAdder extends State<PostAdder>{
                     hoverColor: Colors.greenAccent
                 )
             ),),
+
           Padding(padding: EdgeInsets.fromLTRB(10, 300, 10, 0))
           ],
         ),)
       ),
+      floatingActionButton: adderButton(),
 
     );
   }
